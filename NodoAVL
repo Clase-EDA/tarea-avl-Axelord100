@@ -1,0 +1,23 @@
+package eda;
+
+/*@author Axel Giuseppe Flores Aranda 
+    CU: 181218
+*/
+public class NodoAVL {
+
+    public Comparable elem; //dato en el nodo
+    public NodoAVL izq; 
+    public NodoAVL der;
+    public int altura;
+    
+    public NodoAVL(Comparable elem) {
+        this(elem, null, null);
+    }
+    
+    public NodoAVL(Comparable elem, NodoAVL izq, NodoAVL der) {
+        this.elem = elem;
+        this.izq = izq;
+        this.der = der;
+        altura = 0;
+    }
+}
