@@ -1,0 +1,71 @@
+package eda;
+
+/*@author Axel Giuseppe Flores Aranda 
+    CU: 181218
+*/
+public class PruebaAVL {
+
+    public static void main(String[] args) {
+        BinaryTreeAVL arbolAVL = new BinaryTreeAVL();
+
+        //Prueba de inserción de nodos al arbol AVL
+        Integer elemento1 = new Integer("14");
+        Integer elemento2 = new Integer("17");
+        Integer elemento3 = new Integer("11");
+        Integer elemento4 = new Integer("7");
+        Integer elemento5 = new Integer("53");
+        Integer elemento6 = new Integer("4");
+        Integer elemento7 = new Integer("13");
+        Integer elemento8 = new Integer("12");
+        Integer elemento9 = new Integer("8");
+        Integer elemento10 = new Integer("60");
+        Integer elemento11 = new Integer("19");
+        Integer elemento12 = new Integer("16");
+        Integer elemento13 = new Integer("20");
+
+        Integer elemento14 = new Integer("200");
+        
+        arbolAVL.inserta(elemento1);
+        arbolAVL.inserta(elemento2);
+        arbolAVL.inserta(elemento3);
+        arbolAVL.inserta(elemento4);
+        arbolAVL.inserta(elemento5);
+        arbolAVL.inserta(elemento6);
+        arbolAVL.inserta(elemento7);
+        arbolAVL.inserta(elemento8);
+        arbolAVL.inserta(elemento9);
+        arbolAVL.inserta(elemento10);
+        arbolAVL.inserta(elemento11);
+        arbolAVL.inserta(elemento12);
+        arbolAVL.inserta(elemento13);
+        arbolAVL.niveles();
+        System.out.println("\n");
+
+        //Prueba de busqueda de un nodo 
+        NodoAVL nodo1 = arbolAVL.busca(elemento10);
+        if(nodo1 != null)
+            System.out.println(nodo1.elem);
+        else 
+            System.out.println("\nEl elemento no se encuentra en el arbol");
+        
+        NodoAVL nodo2 = arbolAVL.busca(elemento14);
+        if(nodo2 != null)
+            System.out.println(nodo2.elem);
+        else 
+            System.out.println("\nEl elemento buscado no se encuentra en el arbol");
+        
+        NodoAVL nodo3 = arbolAVL.busca(elemento4);
+        if(nodo3 != null)
+            System.out.println(nodo3.elem);
+        else 
+            System.out.println("\nEl elemento buscado no se encuentra en el arbol");
+            
+        //Prueba de eliminación de un nodo del arbol
+        arbolAVL.elimina(elemento9);
+        arbolAVL.elimina(elemento4);
+        arbolAVL.elimina(elemento3);
+        arbolAVL.elimina(elemento1);
+        arbolAVL.niveles();
+        System.out.println("\n");
+    }
+}
