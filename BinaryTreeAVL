@@ -1,0 +1,300 @@
+package eda;
+
+/*
+    @author Axel Giuseppe Flores Aranda 
+    CU: 181218
+*/
+public class BinaryTreeAVL {
+    private NodoAVL raiz;
+
+    //Metodo para insertar un nodo al arbol
+    public void inserta(Comparable elem){
+        raiz = inserta(elem, raiz);
+    }
+
+    //Inserta recursivo
+    private NodoAVL inserta(Comparable elem, NodoAVL nodo){
+        if(nodo == null)
+            nodo = new NodoAVL(elem, null, null);
+        else if(elem.compareTo(nodo.elem) < 0 ) {
+            nodo.izq = inserta(elem, nodo.izq);
+            
+            if(factorE(nodo) == -2)
+                if(elem.compareTo(nodo.izq.elem) < 0)
+                    nodo = izquierda(nodo); 
+                else
+                    nodo = izquierdaIzquierda(nodo); 
+        }else if(elem.compareTo(nodo.elem) > 0) {
+            nodo.der = inserta(elem, nodo.der);
+            
+            if(factorE(nodo) == 2)
+                if(elem.compareTo(nodo.der.elem) > 0)
+                    nodo = derecha(nodo); 
+                else
+                    nodo = derechaDerecha(nodo); 
+        }else {
+            System.out.println("Elemento ya se encuentra en el arbol");
+            return null; 
+        }
+        
+        //Actualizar la altura del arbol
+        nodo.altura = max(altura(nodo.izq), altura(nodo.der)) + 1;
+        return nodo;
+    }
+
+
+    private static int max(int x, int y){
+        return x > y ? x : y;
+    }
+
+    //Rota cuando tiene un hijo izquierdo
+    private static NodoAVL izquierda(NodoAVL nodo){
+        NodoAVL act = nodo.izq;
+        nodo.izq = act.der;
+        act.der = nodo;
+        nodo.altura = Math.max(altura(nodo.izq), altura(nodo.der)) + 1; //Altura real es con +1
+        act.altura = max(altura(act.izq), nodo.altura) + 1;
+        return act;
+    }
+
+    //Rota cuando tiene un hijo derecho
+    private static NodoAVL derecha(NodoAVL nodo){
+        NodoAVL act = nodo.der;
+        nodo.der = act.izq;
+        act.izq = nodo;
+        nodo.altura = max(altura(nodo.izq), altura(nodo.der)) + 1;
+        act.altura = max(altura(act.der), nodo.altura) + 1;
+        return act;
+    }
+
+    //Rotacion doble a la izquierda
+    private static NodoAVL izquierdaIzquierda(NodoAVL nodo){
+        nodo.izq = derecha(nodo.izq);
+        return izquierda(nodo);
+    }
+
+    //Rotacion doble a la derecha
+    private static NodoAVL derechaDerecha(NodoAVL nodo){
+        nodo.der = izquierda(nodo.der);
+        return derecha(nodo);
+    }
+
+    //Regresa la altura del nodo
+    public static int altura(NodoAVL nodo){
+        if(nodo == null)
+            return -1;
+        else
+            return nodo.altura;
+    }
+    
+    //Metodo que busca un nodo en el arbol 
+    public NodoAVL busca(Comparable elem) {
+        NodoAVL aux = raiz;
+        
+        while (aux != null) {
+            if (elem == aux.elem)
+                return aux;
+            else
+                if (elem.compareTo(aux.elem) > 0)
+                    aux = aux.der;
+                else
+                    aux = aux.izq;
+        }
+        return null;
+    }
+    
+    //Calcula el factor de equilibrio del nodo dado
+    public int factorE(NodoAVL nodo) {
+        if(nodo == null)
+            return 0;
+        else
+            return altura(nodo.der) - altura(nodo.izq);
+    }
+  
+    //Metodo que elimina elemento del arbol
+    public boolean elimina(Comparable elem) {
+        NodoAVL aux = raiz;
+        NodoAVL papa = raiz;
+        boolean hijoIzq = true;
+        NodoAVL temp;
+        
+        while(aux.elem != elem) {
+            papa = aux;
+            
+            if(elem.compareTo(aux.elem) < 0) {
+                hijoIzq = true;
+                aux = aux.izq;
+            }else {
+                hijoIzq = false;
+                aux = aux.der;
+            }
+            
+            if(aux == null) { 
+                System.out.println("Elemento no encontrado");
+                return false;//Si no encuentra el elemento
+            }
+        }
+        
+        //Si el nodo no tiene hijos, si es hoja
+        if(aux.izq == null && aux.der == null) {
+            if(aux == raiz)
+                raiz = null;
+            else if(hijoIzq)
+                papa.izq = null;
+            else
+                papa.der = null; 
+        }else if(aux.der == null) { //Si tiene un hijo del lado izquierdo 
+            if(aux == raiz)
+                raiz = aux.izq;
+            else if(hijoIzq)
+                papa.izq = aux.izq;
+            else
+                papa.der = aux.izq; 
+        }else if(aux.izq == null) { //Si tiene un hijo del lado izquierdo 
+            if(aux == raiz)
+                raiz = aux.der;
+            else if(hijoIzq)
+                papa.izq = aux.der;
+            else
+                papa.der = aux.izq; 
+        }else { //Si tiene 2 hijos se aplica un cambio inOrder, se cambia por su sucesor
+            temp = reemplazo(aux);
+            if(aux == raiz)
+                raiz = temp;
+            else if(hijoIzq)
+                papa.izq = temp;
+            else
+                papa.der = temp;
+            
+            temp.izq = aux.izq;
+            balancea(raiz);
+        }        
+        return true;    
+    }
+    
+    public NodoAVL balancea(NodoAVL nodo){
+        if(factorE(nodo) == 2) {
+            if((factorE(nodo.der) == 0) || (factorE(nodo.der) == 1))
+                nodo = izquierda(nodo);
+            else if(factorE(nodo.der) == -1)
+                nodo = izquierdaIzquierda(nodo);
+        }else if(factorE(nodo) == -2) {
+            if((factorE(nodo.izq) == 0) || (factorE(nodo.izq) == -1))
+                nodo = derecha(nodo);
+            else if(factorE(nodo.izq) == 1)
+                nodo = derechaDerecha(nodo);
+        }
+        
+        return nodo;
+    }
+    
+    //Metodo que devuelve el nodo que va a reemplazar al nodo para eliminar
+    public NodoAVL reemplazo(NodoAVL nodo) {
+        NodoAVL reemplazoPapa = nodo;
+        NodoAVL reemplazo = nodo;
+        NodoAVL aux = nodo.der;
+        
+        while(aux != null) {
+            reemplazoPapa = reemplazo;
+            reemplazo = aux;
+            aux = aux.izq;
+        }
+        
+        if(reemplazo != nodo.der) {
+            reemplazoPapa.izq = reemplazo.der;
+            reemplazo.der = nodo.der;
+        }
+        
+        return reemplazo;
+    }
+
+    /*
+        Imprime cada nodo linea por linea. Recorriendo el arbol desde
+        el Nodo más a la derecha hasta el nodo más a la izquierda,
+        y dejando una identacion de varios espacios en blanco segun su
+        altura en el arbol
+     */
+    public void imprimirXaltura(){
+        imprimirXaltura (raiz);
+    }
+
+    private void imprimirXaltura(NodoAVL nodo){
+        if (nodo != null){
+            imprimirXaltura(nodo.der);
+            System.out.println(replica(" ",altura(raiz) - altura(nodo)) + "["+ nodo.elem + "]");
+            imprimirXaltura(nodo.izq);
+        }
+    }
+
+    //Metodo estatico auxiliar que dada una cadena a y un entero replica esa cadena a, x veces
+    private static String replica (String a, int x){
+        String cad = new String("");
+
+        for (int i = 0; i < x; i++)
+            cad = cad + a;
+        return cad;
+    }
+
+    //Obtiene la altura del arbol AVL
+    public int calcularAltura(){
+        return calcularAltura(raiz);
+    }
+
+    //Calcula la altura del albol, llamada recursiva
+    private int calcularAltura(NodoAVL actual){
+       if (actual == null)
+            return -1;
+       else
+            return 1 + max(calcularAltura(actual.izq), calcularAltura(actual.der));
+    }
+
+    //Imprime el arbol por niveles. Comienza por la raiz.
+    public void niveles(){
+        niveles(raiz);
+    }
+
+    //Imprime el arbol por niveles, llamada recursiva
+    private void niveles(NodoAVL nodo){
+        int max = 0;
+        int nivel = calcularAltura();  //Mediante la altura calcula el total de nodos posibles del árbol, crea una cola con ese tamaño
+
+        for ( ; nivel >= 0; nivel--)
+            max += Math.pow(2, nivel);
+        max++;      //Suma 1 para no utilizar la posicion 0 del array
+
+        NodoAVL cola[] = new NodoAVL[max];
+
+        //Carga en la pos 1 el nodo raiz
+        cola[1] = nodo;
+        int x = 1;
+
+        /*Carga los demas elementos del arbol,
+            Carga null en izq y der si el nodo es null
+            i aumenta de a 2 por q carga en izq y der los hijos
+            x aumenta 1, que son los nodos raiz - padre*/
+        for (int i = 2; i < max; i += 2, x++){
+            if (cola[x] == null){
+                cola[i] = null;
+                cola[i + 1] = null;
+            }
+            else{
+                cola[i] = cola[x].izq;
+                cola[i + 1] = cola[x].der;
+            }
+        }
+        nivel = 0;
+        int cont = 0;                       
+
+        for (int i = 1; i < max; i++){
+            if(i == Math.pow(2, nivel)){
+            	System.out.print("\nNivel " + (nivel) + ": ");
+                nivel++;
+            }
+            if(cola[i] != null){
+                //Imprime el valor dentro del nodo seguido de su factor de equilibrio
+                System.out.print("[" + cola[i].elem + "]" + "(Fe:" + factorE(busca(cola[i].elem)) + ")" + "   ");
+                cont++;
+            }   
+        }
+    }
+} 
